@@ -1,6 +1,7 @@
-# Random Forest Classifier in Scikit-Learn with Shapley Explanations
+# Reusable Random Forest Classifier Implementation in Scikit-Learn with Shapley Explanations
 ## Project Description
-This repository is a dockerized implementation of the re-usable binary classifier model. It is implemented in flexible way so that it can be used with any binary classification dataset with the use of CSV-formatted data, and a JSON-formatted data schema file. The main purpose of this repository is to provide a complete example of a machine learning model implementation that is ready for deployment.
+This project is a dockerized implementation of the re-usable binary classifier model. It is implemented in flexible way so that it can be used with any binary classification dataset with the use of CSV-formatted data, and a JSON-formatted data schema file. The main purpose of this repository is to provide a complete example of a machine learning model implementation that is ready for deployment. <br/>
+This repository is part of a tutorial series titled **Creating Reusable ML Models** on [Ready Tensor](https://docs.readytensor.ai/category/creating-reusable-ml-models). The goal of this tutorial series is to assist AI developers in creating AI model implementations that can be reused across various domains. <br/>
 The following are the requirements for using your data with this model:
 - The data must be in CSV format.
 - The number of rows must not exceed 20,000. Number of columns must not exceed 200. The model may function with larger datasets, but it has not been performance tested on larger datasets.
@@ -165,7 +166,7 @@ curl -X POST -H "Content-Type: application/json" -d '{
     ]
 }' http://localhost:8080/explain
 ```
-The server will respond with a JSON object containing the predicted probabilities and locations for each input record:
+The server will respond with a JSON object containing the predicted probabilities and local explanations for each input record:
 ```json
 {
   "status": "success",
@@ -219,7 +220,7 @@ To run tests using pytest, first create a virtual environment and install the de
 - `requirements_test.txt`: for test dependencies
 - `requirements_quality.txt`: for dependencies related to code quality (formatting, linting, complexity, etc.)
 Once you have the dependencies installed, you can run the tests using the following command from the root of your project directory:
-```
+```bash
 # Run all tests
 pytest
 # or, to run tests in a specific directory

@@ -1,5 +1,5 @@
 {
-  "num_trials": 20,
+  "num_trials": 50,
   "hyperparameters": [
     {
       "name": "n_estimators",
@@ -7,7 +7,7 @@
       "type": "int",
       "search_type": "uniform",
       "range_low": 50,
-      "range_high": 500
+      "range_high": 300
     },
     {
       "name": "min_samples_split",

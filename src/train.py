@@ -10,7 +10,6 @@ from prediction.predictor_model import (
     train_predictor_model,
 )
 from preprocessing.preprocess import (
-    handle_class_imbalance,
     insert_nulls_in_nullable_features,
     save_pipeline_and_target_encoder,
     train_pipeline_and_target_encoder,
@@ -114,15 +113,12 @@ def run_training(
             data_schema, train_split_with_nulls, preprocessing_config
         )
         transformed_train_inputs, transformed_train_targets = transform_data(
-            pipeline, target_encoder, train_split
+            pipeline, target_encoder, train_split_with_nulls
         )
         transformed_val_inputs, transformed_val_targets = transform_data(
             pipeline, target_encoder, val_split
         )
-        logger.info("Handling class imbalance...")
-        balanced_train_inputs, balanced_train_targets = handle_class_imbalance(
-            transformed_train_inputs, transformed_train_targets
-        )
+
         logger.info("Saving pipeline and label encoder...")
         save_pipeline_and_target_encoder(
             pipeline, target_encoder, preprocessing_dir_path
@@ -132,8 +128,8 @@ def run_training(
         if run_tuning:
             logger.info("Tuning hyperparameters...")
             tuned_hyperparameters = tune_hyperparameters(
-                train_X=balanced_train_inputs,
-                train_y=balanced_train_targets,
+                train_X=transformed_train_inputs,
+                train_y=transformed_train_targets,
                 valid_X=transformed_val_inputs,
                 valid_y=transformed_val_targets,
                 hpt_results_dir_path=hpt_results_dir_path,
@@ -143,18 +139,20 @@ def run_training(
             )
             logger.info("Training classifier...")
             predictor = train_predictor_model(
-                balanced_train_inputs,
-                balanced_train_targets,
+                transformed_train_inputs,
+                transformed_train_targets,
                 hyperparameters=tuned_hyperparameters,
             )
         else:
-            # uses default hyperparameters to train model
+            # use default hyperparameters to train model
             logger.info("Training classifier...")
             default_hyperparameters = read_json_as_dict(
                 default_hyperparameters_file_path
             )
             predictor = train_predictor_model(
-                balanced_train_inputs, balanced_train_targets, default_hyperparameters
+                transformed_train_inputs,
+                transformed_train_targets,
+                default_hyperparameters,
             )
 
         # save predictor model
