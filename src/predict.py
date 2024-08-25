@@ -22,6 +22,7 @@ def create_predictions_dataframe(
     ids: pd.Series,
     id_field_name: str,
     return_probs: bool = False,
+    decision_threshold: float = 0.5,
 ) -> pd.DataFrame:
     """
     Converts the predictions numpy array into a dataframe having the required structure.
@@ -52,10 +53,14 @@ def create_predictions_dataframe(
     if len(predictions_arr) != len(ids):
         raise ValueError("Length of ids does not match number of predictions")
     predictions_df.insert(0, id_field_name, ids)
+    predictions_df["decision_threshold"] = decision_threshold
     if return_probs:
         return predictions_df
-    predictions_df[prediction_field_name] = predictions_df[class_names].idxmax(axis=1)
-    predictions_df.drop(class_names, axis=1, inplace=True)
+    negative_class = class_names[0]
+    positive_class = class_names[1]
+    labels = predictions_arr[:, 1] >= decision_threshold
+    labels = np.where(labels, positive_class, negative_class)
+    predictions_df[prediction_field_name] = labels
     return predictions_df
 
 
@@ -124,6 +129,8 @@ def run_batch_predictions(
         )
 
         logger.info("Transforming predictions into dataframe...")
+        logger.info(f"predictor_model.decision_threshold: {predictor_model.decision_threshold}")
+        logger.info(f"predictor_model.positive_class_weight: {predictor_model.positive_class_weight}")
         predictions_df = create_predictions_dataframe(
             predictions_arr,
             data_schema.target_classes,
@@ -131,6 +138,7 @@ def run_batch_predictions(
             test_data[data_schema.id],
             data_schema.id,
             return_probs=True,
+            decision_threshold=predictor_model.decision_threshold,
         )
 
         logger.info("Validating predictions...")
