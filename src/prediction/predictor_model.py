@@ -64,7 +64,7 @@ class Classifier:
             min_samples_split=self.min_samples_split,
             min_samples_leaf=self.min_samples_leaf,
             random_state=0,
-            class_weight={0: 1, 1: self.positive_class_weight},
+            class_weight={0: 1.0, 1: self.positive_class_weight},
         )
         return model
 
